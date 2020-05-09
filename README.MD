@@ -10,8 +10,12 @@ Progress:
   Start with known excel files, input is input.xlsx, output is
   FinanceSummary.xlsx
 
-  Analysis done for 1 month difference, 6 month difference, 1 year difference
+  Analysis done for 1 month difference, 6 month difference, 1 year difference.
 
 Goal:
   Input and output files can be declared as parameters of the
-  program. More analysis will be done eventually.
+  program. (DONE)
+  Add analysis for 3 month difference, 9 month difference.
+  Create archive file that holds data from more than 1 year ago so that excel file doesn't
+  get overloaded.
+  More analysis will be done eventually. Possibly add more for loans, other aspects of finances.
