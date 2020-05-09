@@ -37,6 +37,8 @@ def allocateBankAccountValues():
 def allocateSummaryBankAccount():
     sheetList = writeWB.sheetnames
     length = len(sheetList)
+
+    # not enough data for any analysis
     if (length <= 2):
         summarySheet['C2'] = "N/A"
         summarySheet['C3'] = "N/A"
@@ -50,7 +52,8 @@ def allocateSummaryBankAccount():
         summarySheet['G3'] = "N/A"
         summarySheet['G4'] = "N/A"
         summarySheet['G5'] = "N/A"
-    elif (length <= 6):
+    # case that allows for analysis for 1 month ago
+    elif (length <= 7):
         oneMonthAgo = writeWB[sheetList[length-2]]
         summarySheet['C2'] = account.checking - oneMonthAgo['B2'].value
         summarySheet['C3'] = account.saving - oneMonthAgo['B3'].value
@@ -64,7 +67,8 @@ def allocateSummaryBankAccount():
         summarySheet['G3'] = "N/A"
         summarySheet['G4'] = "N/A"
         summarySheet['G5'] = "N/A"
-    elif (length <= 12):
+    # case that allows for analysis for 1 month, 6 month
+    elif (length <= 13):
         oneMonthAgo = writeWB[sheetList[length-2]]
         sixMonthAgo = writeWB[sheetList[length-7]]
         summarySheet['C2'] = account.checking - oneMonthAgo['B2'].value
@@ -79,6 +83,7 @@ def allocateSummaryBankAccount():
         summarySheet['G3'] = "N/A"
         summarySheet['G4'] = "N/A"
         summarySheet['G5'] = "N/A"
+    # case that allows for analysis for 1 month, 6 month, 1 year
     else:
         oneMonthAgo = writeWB[sheetList[length-2]]
         sixMonthAgo = writeWB[sheetList[length-7]]
@@ -108,9 +113,6 @@ sheet = wb.sheet_by_index(0)
 for i in range(sheet.ncols):
     if (sheet.cell_value(0,i) == "Bank Account"):
         account = bank_account.BankAccount(sheet.cell_value(1, i+1), sheet.cell_value(2, i+1), sheet.cell_value(3, i+1))
-    if (sheet.cell_value(0,i) == "Loan"):
-        loanObject = loan.Loan(sheet.cell_value(1, i+1), sheet.cell_value(2, i+1), sheet.cell_value(3, i+1))
-        i += 1
 
 today = date.today()
 d1 = today.strftime("%d_%m_%Y")
@@ -134,4 +136,3 @@ allocateSummaryBankAccount()
 writeWB.save("FinanceSummary.xlsx")
 
 account.printAccount()
-loanObject.printPayment()
