@@ -22,9 +22,19 @@ def setUpSummary():
     summarySheet['A3'] = "Savings"
     summarySheet['A4'] = "Money Market"
     summarySheet['A5'] = "Total"
-    summarySheet['C1'] = "Delta in 1 month"
-    summarySheet['E1'] = "Delta in 6 months"
-    summarySheet['G1'] = "Delta in 1 year"
+    summarySheet['D1'] = "Delta in 1 month"
+    summarySheet['F1'] = "Delta in 3 months"
+    summarySheet['H1'] = "Delta in 6 months"
+    summarySheet['J1'] = "Delta in 9 months"
+    summarySheet['L1'] = "Delta in 1 year"
+
+# set up the archive sheet
+def setUpArchive():
+    archiveSheet['A1'] = "Archive"
+    archiveSheet['A2'] = "Checking"
+    archiveSheet['A3'] = "Savings"
+    archiveSheet['A4'] = "Money Market"
+    archiveSheet['A5'] = "Total"
 
 # enters the account values into the summary sheet and new sheet
 def allocateBankAccountValues():
@@ -41,70 +51,161 @@ def allocateBankAccountValues():
 def allocateSummaryBankAccount():
     sheetList = writeWB.sheetnames
     sheetList.remove('Summary')
+    sheetList.remove('Archive')
     length = len(sheetList)
 
     # not enough data for any analysis
     if (length < 2):
-        summarySheet['C2'] = "N/A"
-        summarySheet['C3'] = "N/A"
-        summarySheet['C4'] = "N/A"
-        summarySheet['C5'] = "N/A"
-        summarySheet['E2'] = "N/A"
-        summarySheet['E3'] = "N/A"
-        summarySheet['E4'] = "N/A"
-        summarySheet['E5'] = "N/A"
-        summarySheet['G2'] = "N/A"
-        summarySheet['G3'] = "N/A"
-        summarySheet['G4'] = "N/A"
-        summarySheet['G5'] = "N/A"
+        summarySheet['D2'] = "N/A"
+        summarySheet['D3'] = "N/A"
+        summarySheet['D4'] = "N/A"
+        summarySheet['D5'] = "N/A"
+        summarySheet['F2'] = "N/A"
+        summarySheet['F3'] = "N/A"
+        summarySheet['F4'] = "N/A"
+        summarySheet['F5'] = "N/A"
+        summarySheet['H2'] = "N/A"
+        summarySheet['H3'] = "N/A"
+        summarySheet['H4'] = "N/A"
+        summarySheet['H5'] = "N/A"
+        summarySheet['J2'] = "N/A"
+        summarySheet['J3'] = "N/A"
+        summarySheet['J4'] = "N/A"
+        summarySheet['J5'] = "N/A"
+        summarySheet['L2'] = "N/A"
+        summarySheet['L3'] = "N/A"
+        summarySheet['L4'] = "N/A"
+        summarySheet['L5'] = "N/A"
     # case that allows for analysis for 1 month ago
-    elif (length < 6):
+    elif (length < 4):
         oneMonthAgo = writeWB[sheetList[length-2]]
-        summarySheet['C2'] = account.checking - oneMonthAgo['B2'].value
-        summarySheet['C3'] = account.saving - oneMonthAgo['B3'].value
-        summarySheet['C4'] = account.mm - oneMonthAgo['B4'].value
-        summarySheet['C5'] = round(account.sumAccount(), 2) - oneMonthAgo['B5'].value
-        summarySheet['E2'] = "N/A"
-        summarySheet['E3'] = "N/A"
-        summarySheet['E4'] = "N/A"
-        summarySheet['E5'] = "N/A"
-        summarySheet['G2'] = "N/A"
-        summarySheet['G3'] = "N/A"
-        summarySheet['G4'] = "N/A"
-        summarySheet['G5'] = "N/A"
-    # case that allows for analysis for 1 month, 6 month
-    elif (length < 12):
+        summarySheet['D2'] = account.checking - oneMonthAgo['B2'].value
+        summarySheet['D3'] = account.saving - oneMonthAgo['B3'].value
+        summarySheet['D4'] = account.mm - oneMonthAgo['B4'].value
+        summarySheet['D5'] = round(account.sumAccount(), 2) - oneMonthAgo['B5'].value
+        summarySheet['F2'] = "N/A"
+        summarySheet['F3'] = "N/A"
+        summarySheet['F4'] = "N/A"
+        summarySheet['F5'] = "N/A"
+        summarySheet['H2'] = "N/A"
+        summarySheet['H3'] = "N/A"
+        summarySheet['H4'] = "N/A"
+        summarySheet['H5'] = "N/A"
+        summarySheet['J2'] = "N/A"
+        summarySheet['J3'] = "N/A"
+        summarySheet['J4'] = "N/A"
+        summarySheet['J5'] = "N/A"
+        summarySheet['L2'] = "N/A"
+        summarySheet['L3'] = "N/A"
+        summarySheet['L4'] = "N/A"
+        summarySheet['L5'] = "N/A"
+    # case that allows for analysis for 1 month, 3 month
+    elif (length < 7):
         oneMonthAgo = writeWB[sheetList[length-2]]
-        sixMonthAgo = writeWB[sheetList[length-7]]
-        summarySheet['C2'] = account.checking - oneMonthAgo['B2'].value
-        summarySheet['C3'] = account.saving - oneMonthAgo['B3'].value
-        summarySheet['C4'] = account.mm - oneMonthAgo['B4'].value
-        summarySheet['C5'] = round(account.sumAccount(), 2) - oneMonthAgo['B5'].value
-        summarySheet['E2'] = account.checking - sixMonthAgo['B2'].value
-        summarySheet['E3'] = account.saving - sixMonthAgo['B3'].value
-        summarySheet['E4'] = account.mm - sixMonthAgo['B4'].value
-        summarySheet['E5'] = round(account.sumAccount(), 2) - sixMonthAgo['B5'].value
-        summarySheet['G2'] = "N/A"
-        summarySheet['G3'] = "N/A"
-        summarySheet['G4'] = "N/A"
-        summarySheet['G5'] = "N/A"
+        threeMonthAgo = writeWB[sheetList[length-4]]
+        summarySheet['D2'] = account.checking - oneMonthAgo['B2'].value
+        summarySheet['D3'] = account.saving - oneMonthAgo['B3'].value
+        summarySheet['D4'] = account.mm - oneMonthAgo['B4'].value
+        summarySheet['D5'] = round(account.sumAccount(), 2) - oneMonthAgo['B5'].value
+        summarySheet['F2'] = account.checking - threeMonthAgo['B2'].value
+        summarySheet['F3'] = account.saving - threeMonthAgo['B3'].value
+        summarySheet['F4'] = account.mm - threeMonthAgo['B4'].value
+        summarySheet['F5'] = round(account.sumAccount(), 2) - threeMonthAgo['B5'].value
+        summarySheet['H2'] = "N/A"
+        summarySheet['H3'] = "N/A"
+        summarySheet['H4'] = "N/A"
+        summarySheet['H5'] = "N/A"
+        summarySheet['J2'] = "N/A"
+        summarySheet['J3'] = "N/A"
+        summarySheet['J4'] = "N/A"
+        summarySheet['J5'] = "N/A"
+        summarySheet['L2'] = "N/A"
+        summarySheet['L3'] = "N/A"
+        summarySheet['L4'] = "N/A"
+        summarySheet['L5'] = "N/A"
     # case that allows for analysis for 1 month, 6 month, 1 year
+    elif (length < 10):
+        oneMonthAgo = writeWB[sheetList[length-2]]
+        threeMonthAgo = writeWB[sheetList[length-4]]
+        sixMonthAgo = writeWB[sheetList[length-7]]
+        summarySheet['D2'] = account.checking - oneMonthAgo['B2'].value
+        summarySheet['D3'] = account.saving - oneMonthAgo['B3'].value
+        summarySheet['D4'] = account.mm - oneMonthAgo['B4'].value
+        summarySheet['D5'] = round(account.sumAccount(), 2) - oneMonthAgo['B5'].value
+        summarySheet['F2'] = account.checking - threeMonthAgo['B2'].value
+        summarySheet['F3'] = account.saving - threeMonthAgo['B3'].value
+        summarySheet['F4'] = account.mm - threeMonthAgo['B4'].value
+        summarySheet['F5'] = round(account.sumAccount(), 2) - threeMonthAgo['B5'].value
+        summarySheet['H2'] = account.checking - sixMonthAgo['B2'].value
+        summarySheet['H3'] = account.saving - sixMonthAgo['B3'].value
+        summarySheet['H4'] = account.mm - sixMonthAgo['B4'].value
+        summarySheet['H5'] = round(account.sumAccount(), 2) - sixMonthAgo['B5'].value
+        summarySheet['J2'] = "N/A"
+        summarySheet['J3'] = "N/A"
+        summarySheet['J4'] = "N/A"
+        summarySheet['J5'] = "N/A"
+        summarySheet['L2'] = "N/A"
+        summarySheet['L3'] = "N/A"
+        summarySheet['L4'] = "N/A"
+        summarySheet['L5'] = "N/A"
+    elif (length < 13):
+        oneMonthAgo = writeWB[sheetList[length-2]]
+        threeMonthAgo = writeWB[sheetList[length-4]]
+        sixMonthAgo = writeWB[sheetList[length-7]]
+        nineMonthAgo = writeWB[sheetList[length-10]]
+        summarySheet['D2'] = account.checking - oneMonthAgo['B2'].value
+        summarySheet['D3'] = account.saving - oneMonthAgo['B3'].value
+        summarySheet['D4'] = account.mm - oneMonthAgo['B4'].value
+        summarySheet['D5'] = round(account.sumAccount(), 2) - oneMonthAgo['B5'].value
+        summarySheet['F2'] = account.checking - threeMonthAgo['B2'].value
+        summarySheet['F3'] = account.saving - threeMonthAgo['B3'].value
+        summarySheet['F4'] = account.mm - threeMonthAgo['B4'].value
+        summarySheet['F5'] = round(account.sumAccount(), 2) - threeMonthAgo['B5'].value
+        summarySheet['H2'] = account.checking - sixMonthAgo['B2'].value
+        summarySheet['H3'] = account.saving - sixMonthAgo['B3'].value
+        summarySheet['H4'] = account.mm - sixMonthAgo['B4'].value
+        summarySheet['H5'] = round(account.sumAccount(), 2) - sixMonthAgo['B5'].value
+        summarySheet['J2'] = account.checking - nineMonthAgo['B2'].value
+        summarySheet['J3'] = account.saving - nineMonthAgo['B3'].value
+        summarySheet['J4'] = account.mm - nineMonthAgo['B4'].value
+        summarySheet['J5'] = round(account.sumAccount(), 2) - nineMonthAgo['B5'].value
+        summarySheet['L2'] = "N/A"
+        summarySheet['L3'] = "N/A"
+        summarySheet['L4'] = "N/A"
+        summarySheet['L5'] = "N/A"
     else:
         oneMonthAgo = writeWB[sheetList[length-2]]
+        threeMonthAgo = writeWB[sheetList[length-4]]
         sixMonthAgo = writeWB[sheetList[length-7]]
+        nineMonthAgo = writeWB[sheetList[length-10]]
         oneYearAgo = writeWB[sheetList[length-13]]
-        summarySheet['C2'] = account.checking - oneMonthAgo['B2'].value
-        summarySheet['C3'] = account.saving - oneMonthAgo['B3'].value
-        summarySheet['C4'] = account.mm - oneMonthAgo['B4'].value
-        summarySheet['C5'] = round(account.sumAccount(), 2) - oneMonthAgo['B5'].value
-        summarySheet['E2'] = account.checking - sixMonthAgo['B2'].value
-        summarySheet['E3'] = account.saving - sixMonthAgo['B3'].value
-        summarySheet['E4'] = account.mm - sixMonthAgo['B4'].value
-        summarySheet['E5'] = round(account.sumAccount(), 2) - sixMonthAgo['B5'].value
-        summarySheet['G2'] = account.checking - oneYearAgo['B2'].value
-        summarySheet['G3'] = account.saving - oneYearAgo['B3'].value
-        summarySheet['G4'] = account.mm - oneYearAgo['B4'].value
-        summarySheet['G5'] = round(account.sumAccount(), 2) - oneYearAgo['B5'].value
+        summarySheet['D2'] = account.checking - oneMonthAgo['B2'].value
+        summarySheet['D3'] = account.saving - oneMonthAgo['B3'].value
+        summarySheet['D4'] = account.mm - oneMonthAgo['B4'].value
+        summarySheet['D5'] = round(account.sumAccount(), 2) - oneMonthAgo['B5'].value
+        summarySheet['F2'] = account.checking - threeMonthAgo['B2'].value
+        summarySheet['F3'] = account.saving - threeMonthAgo['B3'].value
+        summarySheet['F4'] = account.mm - threeMonthAgo['B4'].value
+        summarySheet['F5'] = round(account.sumAccount(), 2) - threeMonthAgo['B5'].value
+        summarySheet['H2'] = account.checking - sixMonthAgo['B2'].value
+        summarySheet['H3'] = account.saving - sixMonthAgo['B3'].value
+        summarySheet['H4'] = account.mm - sixMonthAgo['B4'].value
+        summarySheet['H5'] = round(account.sumAccount(), 2) - sixMonthAgo['B5'].value
+        summarySheet['J2'] = account.checking - nineMonthAgo['B2'].value
+        summarySheet['J3'] = account.saving - nineMonthAgo['B3'].value
+        summarySheet['J4'] = account.mm - nineMonthAgo['B4'].value
+        summarySheet['J5'] = round(account.sumAccount(), 2) - nineMonthAgo['B5'].value
+        summarySheet['L2'] = account.checking - oneYearAgo['B2'].value
+        summarySheet['L3'] = account.saving - oneYearAgo['B3'].value
+        summarySheet['L4'] = account.mm - oneYearAgo['B4'].value
+        summarySheet['L5'] = round(account.sumAccount(), 2) - oneYearAgo['B5'].value
+        if (length > 13):
+            maxCol = archiveSheet.max_column
+            archiveSheet.cell(row=1, column=maxCol+1).value = date.today().strftime("%d_%m_%Y")
+            archiveSheet.cell(row=2, column=maxCol+1).value = writeWB[sheetList[0]]['B2'].value
+            archiveSheet.cell(row=3, column=maxCol+1).value = writeWB[sheetList[0]]['B3'].value
+            archiveSheet.cell(row=4, column=maxCol+1).value = writeWB[sheetList[0]]['B4'].value
+            archiveSheet.cell(row=5, column=maxCol+1).value = writeWB[sheetList[0]]['B5'].value
 
 # argument handling
 if (len(sys.argv) == 1):
@@ -136,13 +237,16 @@ d1 = today.strftime("%d_%m_%Y")
 try:
     writeWB = op.load_workbook(sys.argv[2])
     summarySheet = writeWB["Summary"]
+    archiveSheet = writeWB["Archive"]
 except:
     writeWB = op.Workbook()
     writeWB.title = sys.argv[2][0:-5]
     summarySheet = writeWB.create_sheet("Summary")
+    archiveSheet = writeWB.create_sheet("Archive")
     if (writeWB.sheetnames[0] != "Summary"):
         writeWB.remove(writeWB[writeWB.sheetnames[0]])
     setUpSummary()
+    setUpArchive()
 
 # create a new sheet with title of the current date
 newSheet = writeWB.create_sheet(d1)
