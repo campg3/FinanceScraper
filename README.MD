@@ -16,6 +16,9 @@ Progress:
   Archive sheet holds data from more than 1 year ago so that sheets bar doesn't get
   overloaded.
   As of now, done with bank total portion, except for sheet name.
+  NEW INFO, I want to change the current implementation of Bank Account to only have an
+  archive file rather than a bunch of sheets, it's cleaner, and allows for more scalability
+  to the other things I eventually want to include. COMPLETED
   Onto loans to individuals info.
   After that, possibly include student loans info.
 
