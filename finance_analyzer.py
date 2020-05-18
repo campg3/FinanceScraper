@@ -36,6 +36,12 @@ def setUpArchive():
     archiveSheet['A4'] = "Money Market"
     archiveSheet['A5'] = "Total"
 
+def setUpArchive(rowVal):
+    archiveSheet.cell(row=rowVal+3, column=1).value = "Checking"
+    archiveSheet.cell(row=rowVal+4, column=1).value = "Savings"
+    archiveSheet.cell(row=rowVal+5, column=1).value = "Money Market"
+    archiveSheet.cell(row=rowVal+6, column=1).value = "Total"
+
 # enters the account values into the summary sheet and new sheet
 def allocateBankAccountValues():
     newSheet['B2'] = account.checking
@@ -123,7 +129,7 @@ def allocateSummaryBankAccount():
         summarySheet['L3'] = "N/A"
         summarySheet['L4'] = "N/A"
         summarySheet['L5'] = "N/A"
-    # case that allows for analysis for 1 month, 6 month, 1 year
+    # case that allows for analysis for 1 month, 3 month, 6 month
     elif (length < 10):
         oneMonthAgo = writeWB[sheetList[length-2]]
         threeMonthAgo = writeWB[sheetList[length-4]]
@@ -148,6 +154,7 @@ def allocateSummaryBankAccount():
         summarySheet['L3'] = "N/A"
         summarySheet['L4'] = "N/A"
         summarySheet['L5'] = "N/A"
+    # case that allows for analysis for 1 month, 3 month, 6 month, 9 month
     elif (length < 13):
         oneMonthAgo = writeWB[sheetList[length-2]]
         threeMonthAgo = writeWB[sheetList[length-4]]
@@ -173,6 +180,7 @@ def allocateSummaryBankAccount():
         summarySheet['L3'] = "N/A"
         summarySheet['L4'] = "N/A"
         summarySheet['L5'] = "N/A"
+    # case that allows for analysis for 1 month, 3 month, 6 month, 9 month, 1 year
     else:
         oneMonthAgo = writeWB[sheetList[length-2]]
         threeMonthAgo = writeWB[sheetList[length-4]]
@@ -199,13 +207,23 @@ def allocateSummaryBankAccount():
         summarySheet['L3'] = account.saving - oneYearAgo['B3'].value
         summarySheet['L4'] = account.mm - oneYearAgo['B4'].value
         summarySheet['L5'] = round(account.sumAccount(), 2) - oneYearAgo['B5'].value
+        # if there are more than 13, the number the allows for 1 year analysis, delete and archive
         if (length > 13):
-            maxCol = archiveSheet.max_column
-            archiveSheet.cell(row=1, column=maxCol+1).value = date.today().strftime("%d_%m_%Y")
-            archiveSheet.cell(row=2, column=maxCol+1).value = writeWB[sheetList[0]]['B2'].value
-            archiveSheet.cell(row=3, column=maxCol+1).value = writeWB[sheetList[0]]['B3'].value
-            archiveSheet.cell(row=4, column=maxCol+1).value = writeWB[sheetList[0]]['B4'].value
-            archiveSheet.cell(row=5, column=maxCol+1).value = writeWB[sheetList[0]]['B5'].value
+            maxRow = archiveSheet.max_row
+            maxCol = max((c.column for c in archiveSheet[maxRow] if c.value is not None))
+            if (maxCol == 21):
+                setUpArchive(maxRow)
+                maxRow = maxRow + 6
+                maxCol = max((c.column for c in archiveSheet[maxRow] if c.value is not None))
+            archiveSheet.cell(row=maxRow-4, column=maxCol+1).value = date.today().strftime("%d_%m_%Y")
+            archiveSheet.cell(row=maxRow-3, column=maxCol+1).value = writeWB[sheetList[0]]['B2'].value
+            archiveSheet.cell(row=maxRow-2, column=maxCol+1).value = writeWB[sheetList[0]]['B3'].value
+            archiveSheet.cell(row=maxRow-1, column=maxCol+1).value = writeWB[sheetList[0]]['B4'].value
+            archiveSheet.cell(row=maxRow, column=maxCol+1).value = writeWB[sheetList[0]]['B5'].value
+            writeWB.remove(writeWB[sheetList[0]])
+
+
+# basically the start of "main()"
 
 # argument handling
 if (len(sys.argv) == 1):
@@ -236,6 +254,7 @@ d1 = today.strftime("%d_%m_%Y")
 # open the excel workbook, if doesn't exist, create it and ensure 'Summary' is first sheet
 try:
     writeWB = op.load_workbook(sys.argv[2])
+    writeWB.title = sys.argv[2][0:-5]
     summarySheet = writeWB["Summary"]
     archiveSheet = writeWB["Archive"]
 except:
@@ -257,6 +276,6 @@ allocateBankAccountValues()
 allocateSummaryBankAccount()
 
 # save the file
-writeWB.save("FinanceSummary.xlsx")
+writeWB.save(writeWB.title + '.xlsx')
 
 account.printAccount()
