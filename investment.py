@@ -1,4 +1,4 @@
-class Loan:
+class Investment:
     def __init__(self, principal, rate, period):
         self.principal = principal
         self.rate = rate
