@@ -1,6 +1,6 @@
 # Reading an excel file using Python
 import bank_account
-import loan
+import investment
 import xlrd
 from datetime import date
 import openpyxl as op
