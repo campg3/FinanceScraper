@@ -4,35 +4,32 @@ import loan
 import xlrd
 from datetime import date
 import openpyxl as op
+from openpyxl.styles import Alignment
 import sys
 
 # sets up the format of the summary sheet
 # is only called once, if the file didn't exist when called
 def setUpSummary():
-    summarySheet['A1'] = "Current Bank Account"
+    summarySheet['A1'] = "Bank Account Totals"
     summarySheet['A2'] = "Checking"
     summarySheet['A3'] = "Savings"
     summarySheet['A4'] = "Money Market"
     summarySheet['A5'] = "Total"
-    summarySheet['D1'] = "Delta in 1 month"
-    summarySheet['F1'] = "Delta in 3 months"
-    summarySheet['H1'] = "Delta in 6 months"
-    summarySheet['J1'] = "Delta in 9 months"
-    summarySheet['L1'] = "Delta in 1 year"
+    summarySheet['B1'] = "Current"
+    summarySheet['C1'] = "Delta over 1 month"
+    summarySheet['D1'] = "Delta over 3 months"
+    summarySheet['E1'] = "Delta over 6 months"
+    summarySheet['F1'] = "Delta over 9 months"
+    summarySheet['G1'] = "Delta over 1 year"
 
 # set up the archive sheet
 def setUpArchive():
     archiveSheet['A1'] = "Bank Archive"
-    archiveSheet['A2'] = "Checking"
-    archiveSheet['A3'] = "Savings"
-    archiveSheet['A4'] = "Money Market"
-    archiveSheet['A5'] = "Total"
+    archiveSheet['B1'] = "Checking"
+    archiveSheet['C1'] = "Savings"
+    archiveSheet['D1'] = "Money Market"
+    archiveSheet['E1'] = "Total"
 
-def setUpArchiveParam(rowVal):
-    archiveSheet.cell(row=rowVal+3, column=1).value = "Checking"
-    archiveSheet.cell(row=rowVal+4, column=1).value = "Savings"
-    archiveSheet.cell(row=rowVal+5, column=1).value = "Money Market"
-    archiveSheet.cell(row=rowVal+6, column=1).value = "Total"
 
 # enters the account values into the summary sheet and new sheet
 def allocateBankAccountValues():
@@ -40,273 +37,164 @@ def allocateBankAccountValues():
     summarySheet['B3'] = account.saving
     summarySheet['B4'] = account.mm
     summarySheet['B5'] = account.sumAccount()
-    maxRow = archiveSheet.max_row
-    maxCol = max((c.column for c in archiveSheet[maxRow] if c.value is not None))
-    if (maxCol == 21):
-        setUpArchiveParam(maxRow)
-        maxRow = maxRow + 6
-        maxCol = max((c.column for c in archiveSheet[maxRow] if c.value is not None))
-    archiveSheet.cell(row=maxRow-4, column=maxCol+1).value = date.today().strftime("%m_%d_%Y")
-    archiveSheet.cell(row=maxRow-3, column=maxCol+1).value = account.checking
-    archiveSheet.cell(row=maxRow-2, column=maxCol+1).value = account.saving
-    archiveSheet.cell(row=maxRow-1, column=maxCol+1).value = account.mm
-    archiveSheet.cell(row=maxRow, column=maxCol+1).value = account.sumAccount()
-
+    insertRow = archiveSheet.max_row + 1
+    archiveSheet.cell(row=insertRow, column=1).value = date.today().strftime("%m_%d_%Y")
+    archiveSheet.cell(row=insertRow, column=2).value = account.checking
+    archiveSheet.cell(row=insertRow, column=3).value = account.saving
+    archiveSheet.cell(row=insertRow, column=4).value = account.mm
+    archiveSheet.cell(row=insertRow, column=5).value = account.sumAccount()
 
 # fills out the summary page
 def allocateSummaryBankAccount():
-    maxRow = archiveSheet.max_row
-    maxCol = max((c.column for c in archiveSheet[maxRow] if c.value is not None))
+    numEntries = archiveSheet.max_row
+    print(numEntries)
 
-    # not enough data for any analysis
-    if (maxRow == 5 and maxCol < 3):
+    # no analysis available
+    if (numEntries-1 == 1):
+        summarySheet['C2'] = "N/A"
+        summarySheet['C3'] = "N/A"
+        summarySheet['C4'] = "N/A"
+        summarySheet['C5'] = "N/A"
         summarySheet['D2'] = "N/A"
         summarySheet['D3'] = "N/A"
         summarySheet['D4'] = "N/A"
         summarySheet['D5'] = "N/A"
+        summarySheet['E2'] = "N/A"
+        summarySheet['E3'] = "N/A"
+        summarySheet['E4'] = "N/A"
+        summarySheet['E5'] = "N/A"
         summarySheet['F2'] = "N/A"
         summarySheet['F3'] = "N/A"
         summarySheet['F4'] = "N/A"
         summarySheet['F5'] = "N/A"
-        summarySheet['H2'] = "N/A"
-        summarySheet['H3'] = "N/A"
-        summarySheet['H4'] = "N/A"
-        summarySheet['H5'] = "N/A"
-        summarySheet['J2'] = "N/A"
-        summarySheet['J3'] = "N/A"
-        summarySheet['J4'] = "N/A"
-        summarySheet['J5'] = "N/A"
-        summarySheet['L2'] = "N/A"
-        summarySheet['L3'] = "N/A"
-        summarySheet['L4'] = "N/A"
-        summarySheet['L5'] = "N/A"
-    # case that allows for analysis for 1 month, 3 month, 6 month, 9 month, 1 year
-    elif (maxCol >= 14 or maxRow > 5):
-        oneMonthCol = maxCol-1
-        oneMonthRow = maxRow
-        threeMonthCol = maxCol-3
-        threeMonthRow = maxRow
-        sixMonthCol = maxCol-6
-        sixMonthRow = maxRow
-        nineMonthCol = maxCol-9
-        nineMonthRow = maxRow
-        yearCol = maxCol-12
-        yearRow = maxRow
-        if (oneMonthCol <= 1):
-            oneMonthCol = max((c.column for c in archiveSheet[maxRow-6] if c.value is not None))
-            threeMonthCol = oneMonthCol-2
-            sixMonthCol = oneMonthCol-5
-            nineMonthCol = oneMonthCol-8
-            yearCol = oneMonthCol-11
-            oneMonthRow = oneMonthRow-6
-            threeMonthRow = oneMonthRow
-            sixMonthRow = oneMonthRow
-            nineMonthRow = oneMonthRow
-            yearRow = oneMonthRow
-        elif (threeMonthCol <= 1):
-            threeMonthCol = max((c.column for c in archiveSheet[maxRow-6] if c.value is not None)) - (1-threeMonthCol)
-            sixMonthCol = threeMonthCol-3
-            nineMonthCol = threeMonthCol-6
-            yearCol = threeMonthCol-9
-            threeMonthRow = threeMonthRow-6
-            sixMonthRow = threeMonthRow
-            nineMonthRow = threeMonthRow
-            yearRow = threeMonthRow
-        elif (sixMonthCol <= 1):
-            sixMonthCol = max((c.column for c in archiveSheet[maxRow-6] if c.value is not None)) - (1-sixMonthCol)
-            nineMonthCol = sixMonthCol-3
-            yearCol = sixMonthCol-6
-            sixMonthRow = maxRow-6
-            nineMonthRow = sixMonthRow
-            yearRow = sixMonthRow
-        elif (nineMonthCol <= 1):
-            nineMonthCol = max((c.column for c in archiveSheet[maxRow-6] if c.value is not None)) - (1-nineMonthCol)
-            nineMonthRow = maxRow-6
-            yearCol = nineMonthCol-3
-            yearRow = nineMonthRow
-        elif (yearCol <= 1):
-            yearCol = max((c.column for c in archiveSheet[maxRow-6] if c.value is not None)) - (1-yearCol)
-            yearRow = maxRow-6
-
-        summarySheet['D2'] = account.checking - archiveSheet.cell(row=oneMonthRow-3, column=oneMonthCol).value
-        summarySheet['D3'] = account.saving - archiveSheet.cell(row=oneMonthRow-2, column=oneMonthCol).value
-        summarySheet['D4'] = account.mm - archiveSheet.cell(row=oneMonthRow-1, column=oneMonthCol).value
-        summarySheet['D5'] = round(account.sumAccount(), 2) - archiveSheet.cell(row=oneMonthRow, column=oneMonthCol).value
-        summarySheet['F2'] = account.checking - archiveSheet.cell(row=threeMonthRow-3, column=threeMonthCol).value
-        summarySheet['F3'] = account.saving - archiveSheet.cell(row=threeMonthRow-2, column=threeMonthCol).value
-        summarySheet['F4'] = account.mm - archiveSheet.cell(row=threeMonthRow-1, column=threeMonthCol).value
-        summarySheet['F5'] = round(account.sumAccount(), 2) - archiveSheet.cell(row=threeMonthRow, column=threeMonthCol).value
-        summarySheet['H2'] = account.checking - archiveSheet.cell(row=sixMonthRow-3, column=sixMonthCol).value
-        summarySheet['H3'] = account.saving - archiveSheet.cell(row=sixMonthRow-2, column=sixMonthCol).value
-        summarySheet['H4'] = account.mm - archiveSheet.cell(row=sixMonthRow-1, column=sixMonthCol).value
-        summarySheet['H5'] = round(account.sumAccount(), 2) - archiveSheet.cell(row=sixMonthRow, column=sixMonthCol).value
-        summarySheet['J2'] = account.checking - archiveSheet.cell(row=nineMonthRow-3, column=nineMonthCol).value
-        summarySheet['J3'] = account.saving - archiveSheet.cell(row=nineMonthRow-2, column=nineMonthCol).value
-        summarySheet['J4'] = account.mm - archiveSheet.cell(row=nineMonthRow-1, column=nineMonthCol).value
-        summarySheet['J5'] = round(account.sumAccount(), 2) - archiveSheet.cell(row=nineMonthRow, column=nineMonthCol).value
-        summarySheet['L2'] = account.checking - archiveSheet.cell(row=yearRow-3, column=yearCol).value
-        summarySheet['L3'] = account.saving - archiveSheet.cell(row=yearRow-2, column=yearCol).value
-        summarySheet['L4'] = account.mm - archiveSheet.cell(row=yearRow-1, column=yearCol).value
-        summarySheet['L5'] = round(account.sumAccount(), 2) - archiveSheet.cell(row=yearRow, column=yearCol).value
-    # case that allows for analysis for 1 month, 3 month, 6 month, 9 month
-    elif (maxCol >= 11 or maxRow > 5):
-        oneMonthCol = maxCol-1
-        oneMonthRow = maxRow
-        threeMonthCol = maxCol-3
-        threeMonthRow = maxRow
-        sixMonthCol = maxCol-6
-        sixMonthRow = maxRow
-        nineMonthCol = maxCol-9
-        nineMonthRow = maxRow
-        if (oneMonthCol <= 1):
-            oneMonthCol = max((c.column for c in archiveSheet[maxRow-6] if c.value is not None))
-            threeMonthCol = oneMonthCol-2
-            sixMonthCol = oneMonthCol-5
-            nineMonthCol = oneMonthCol-8
-            oneMonthRow = oneMonthRow-6
-            threeMonthRow = oneMonthRow
-            sixMonthRow = oneMonthRow
-            nineMonthRow = oneMonthRow
-        elif (threeMonthCol <= 1):
-            threeMonthCol = max((c.column for c in archiveSheet[maxRow-6] if c.value is not None)) - (1-threeMonthCol)
-            sixMonthCol = threeMonthCol-3
-            nineMonthCol = threeMonthCol-6
-            threeMonthRow = threeMonthRow-6
-            sixMonthRow = threeMonthRow
-            nineMonthRow = threeMonthRow
-        elif (sixMonthCol <= 1):
-            sixMonthCol = max((c.column for c in archiveSheet[maxRow-6] if c.value is not None)) - (1-sixMonthCol)
-            nineMonthCol = sixMonthCol-3
-            sixMonthRow = maxRow-6
-            nineMonthRow = sixMonthRow
-        elif (nineMonthCol <= 1):
-            nineMonthCol = max((c.column for c in archiveSheet[maxRow-6] if c.value is not None)) - (1-nineMonthCol)
-            nineMonthRow = maxRow-6
-
-        summarySheet['D2'] = account.checking - archiveSheet.cell(row=oneMonthRow-3, column=oneMonthCol).value
-        summarySheet['D3'] = account.saving - archiveSheet.cell(row=oneMonthRow-2, column=oneMonthCol).value
-        summarySheet['D4'] = account.mm - archiveSheet.cell(row=oneMonthRow-1, column=oneMonthCol).value
-        summarySheet['D5'] = round(account.sumAccount(), 2) - archiveSheet.cell(row=oneMonthRow, column=oneMonthCol).value
-        summarySheet['F2'] = account.checking - archiveSheet.cell(row=threeMonthRow-3, column=threeMonthCol).value
-        summarySheet['F3'] = account.saving - archiveSheet.cell(row=threeMonthRow-2, column=threeMonthCol).value
-        summarySheet['F4'] = account.mm - archiveSheet.cell(row=threeMonthRow-1, column=threeMonthCol).value
-        summarySheet['F5'] = round(account.sumAccount(), 2) - archiveSheet.cell(row=threeMonthRow, column=threeMonthCol).value
-        summarySheet['H2'] = account.checking - archiveSheet.cell(row=sixMonthRow-3, column=sixMonthCol).value
-        summarySheet['H3'] = account.saving - archiveSheet.cell(row=sixMonthRow-2, column=sixMonthCol).value
-        summarySheet['H4'] = account.mm - archiveSheet.cell(row=sixMonthRow-1, column=sixMonthCol).value
-        summarySheet['H5'] = round(account.sumAccount(), 2) - archiveSheet.cell(row=sixMonthRow, column=sixMonthCol).value
-        summarySheet['J2'] = account.checking - archiveSheet.cell(row=nineMonthRow-3, column=nineMonthCol).value
-        summarySheet['J3'] = account.saving - archiveSheet.cell(row=nineMonthRow-2, column=nineMonthCol).value
-        summarySheet['J4'] = account.mm - archiveSheet.cell(row=nineMonthRow-1, column=nineMonthCol).value
-        summarySheet['J5'] = round(account.sumAccount(), 2) - archiveSheet.cell(row=nineMonthRow, column=nineMonthCol).value
-        summarySheet['L2'] = "N/A"
-        summarySheet['L3'] = "N/A"
-        summarySheet['L4'] = "N/A"
-        summarySheet['L5'] = "N/A"
-    # case that allows for analysis for 1 month, 3 month, 6 month
-    elif (maxCol >= 8 or maxRow > 5):
-        oneMonthCol = maxCol-1
-        oneMonthRow = maxRow
-        threeMonthCol = maxCol-3
-        threeMonthRow = maxRow
-        sixMonthCol = maxCol-6
-        sixMonthRow = maxRow
-        if (oneMonthCol <= 1):
-            oneMonthCol = max((c.column for c in archiveSheet[maxRow-6] if c.value is not None))
-            threeMonthCol = oneMonthCol-2
-            sixMonthCol = oneMonthCol-5
-            oneMonthRow = oneMonthRow-6
-            threeMonthRow = oneMonthRow
-            sixMonthRow = oneMonthRow
-        elif (threeMonthCol <= 1):
-            threeMonthCol = max((c.column for c in archiveSheet[maxRow-6] if c.value is not None)) - (1-threeMonthCol)
-            sixMonthCol = threeMonthCol-3
-            threeMonthRow = threeMonthRow-6
-            sixMonthRow = threeMonthRow
-        elif (sixMonthCol <= 1):
-            sixMonthCol = max((c.column for c in archiveSheet[maxRow-6] if c.value is not None)) - (1-sixMonthCol)
-            sixMonthRow = maxRow-6
-
-        summarySheet['D2'] = account.checking - archiveSheet.cell(row=oneMonthRow-3, column=oneMonthCol).value
-        summarySheet['D3'] = account.saving - archiveSheet.cell(row=oneMonthRow-2, column=oneMonthCol).value
-        summarySheet['D4'] = account.mm - archiveSheet.cell(row=oneMonthRow-1, column=oneMonthCol).value
-        summarySheet['D5'] = round(account.sumAccount(), 2) - archiveSheet.cell(row=oneMonthRow, column=oneMonthCol).value
-        summarySheet['F2'] = account.checking - archiveSheet.cell(row=threeMonthRow-3, column=threeMonthCol).value
-        summarySheet['F3'] = account.saving - archiveSheet.cell(row=threeMonthRow-2, column=threeMonthCol).value
-        summarySheet['F4'] = account.mm - archiveSheet.cell(row=threeMonthRow-1, column=threeMonthCol).value
-        summarySheet['F5'] = round(account.sumAccount(), 2) - archiveSheet.cell(row=threeMonthRow, column=threeMonthCol).value
-        summarySheet['H2'] = account.checking - archiveSheet.cell(row=sixMonthRow-3, column=sixMonthCol).value
-        summarySheet['H3'] = account.saving - archiveSheet.cell(row=sixMonthRow-2, column=sixMonthCol).value
-        summarySheet['H4'] = account.mm - archiveSheet.cell(row=sixMonthRow-1, column=sixMonthCol).value
-        summarySheet['H5'] = round(account.sumAccount(), 2) - archiveSheet.cell(row=sixMonthRow, column=sixMonthCol).value
-        summarySheet['J2'] = "N/A"
-        summarySheet['J3'] = "N/A"
-        summarySheet['J4'] = "N/A"
-        summarySheet['J5'] = "N/A"
-        summarySheet['L2'] = "N/A"
-        summarySheet['L3'] = "N/A"
-        summarySheet['L4'] = "N/A"
-        summarySheet['L5'] = "N/A"
-    # case that allows for analysis for 1 month, 3 month
-    elif (maxCol >= 5 or maxRow > 5):
-        oneMonthCol = maxCol-1
-        oneMonthRow = maxRow
-        threeMonthCol = maxCol-3
-        threeMonthRow = maxRow
-        if (oneMonthCol <= 1):
-            oneMonthCol = max((c.column for c in archiveSheet[maxRow-6] if c.value is not None))
-            threeMonthCol = oneMonthCol-2
-            oneMonthRow = oneMonthRow-6
-            threeMonthRow = oneMonthRow
-        elif (threeMonthCol <= 1):
-            threeMonthCol = max((c.column for c in archiveSheet[maxRow-6] if c.value is not None)) - (1-threeMonthCol)
-            threeMonthRow = threeMonthRow-6
-        summarySheet['D2'] = account.checking - archiveSheet.cell(row=oneMonthRow-3, column=oneMonthCol).value
-        summarySheet['D3'] = account.saving - archiveSheet.cell(row=oneMonthRow-2, column=oneMonthCol).value
-        summarySheet['D4'] = account.mm - archiveSheet.cell(row=oneMonthRow-1, column=oneMonthCol).value
-        summarySheet['D5'] = round(account.sumAccount(), 2) - archiveSheet.cell(row=oneMonthRow, column=oneMonthCol).value
-        summarySheet['F2'] = account.checking - archiveSheet.cell(row=threeMonthRow-3, column=threeMonthCol).value
-        summarySheet['F3'] = account.saving - archiveSheet.cell(row=threeMonthRow-2, column=threeMonthCol).value
-        summarySheet['F4'] = account.mm - archiveSheet.cell(row=threeMonthRow-1, column=threeMonthCol).value
-        summarySheet['F5'] = round(account.sumAccount(), 2) - archiveSheet.cell(row=threeMonthRow, column=threeMonthCol).value
-        summarySheet['H2'] = "N/A"
-        summarySheet['H3'] = "N/A"
-        summarySheet['H4'] = "N/A"
-        summarySheet['H5'] = "N/A"
-        summarySheet['J2'] = "N/A"
-        summarySheet['J3'] = "N/A"
-        summarySheet['J4'] = "N/A"
-        summarySheet['J5'] = "N/A"
-        summarySheet['L2'] = "N/A"
-        summarySheet['L3'] = "N/A"
-        summarySheet['L4'] = "N/A"
-        summarySheet['L5'] = "N/A"
-    # case that allows for analysis for 1 month ago
-    elif (maxCol >= 3 or maxRow > 5):
-        columnVal = maxCol-1
-        if (columnVal <= 1):
-            columnVal = max((c.column for c in archiveSheet[maxRow-6] if c.value is not None))
-            maxRow = maxRow-6
-        summarySheet['D2'] = account.checking - archiveSheet.cell(row=maxRow-3, column=columnVal).value
-        summarySheet['D3'] = account.saving - archiveSheet.cell(row=maxRow-2, column=columnVal).value
-        summarySheet['D4'] = account.mm - archiveSheet.cell(row=maxRow-1, column=columnVal).value
-        summarySheet['D5'] = round(account.sumAccount(), 2) - archiveSheet.cell(row=maxRow, column=columnVal).value
+        summarySheet['G2'] = "N/A"
+        summarySheet['G3'] = "N/A"
+        summarySheet['G4'] = "N/A"
+        summarySheet['G5'] = "N/A"
+    # analysis on 1 month available
+    elif (numEntries-1 < 4):
+        summarySheet['C2'] = account.checking - archiveSheet.cell(row=numEntries-1, column=2).value
+        summarySheet['C3'] = account.saving - archiveSheet.cell(row=numEntries-1, column=3).value
+        summarySheet['C4'] = account.mm - archiveSheet.cell(row=numEntries-1, column=4).value
+        summarySheet['C5'] = round(account.sumAccount(), 2) - archiveSheet.cell(row=numEntries-1, column=5).value
+        summarySheet['D2'] = "N/A"
+        summarySheet['D3'] = "N/A"
+        summarySheet['D4'] = "N/A"
+        summarySheet['D5'] = "N/A"
+        summarySheet['E2'] = "N/A"
+        summarySheet['E3'] = "N/A"
+        summarySheet['E4'] = "N/A"
+        summarySheet['E5'] = "N/A"
         summarySheet['F2'] = "N/A"
         summarySheet['F3'] = "N/A"
         summarySheet['F4'] = "N/A"
         summarySheet['F5'] = "N/A"
-        summarySheet['H2'] = "N/A"
-        summarySheet['H3'] = "N/A"
-        summarySheet['H4'] = "N/A"
-        summarySheet['H5'] = "N/A"
-        summarySheet['J2'] = "N/A"
-        summarySheet['J3'] = "N/A"
-        summarySheet['J4'] = "N/A"
-        summarySheet['J5'] = "N/A"
-        summarySheet['L2'] = "N/A"
-        summarySheet['L3'] = "N/A"
-        summarySheet['L4'] = "N/A"
-        summarySheet['L5'] = "N/A"
+        summarySheet['G2'] = "N/A"
+        summarySheet['G3'] = "N/A"
+        summarySheet['G4'] = "N/A"
+        summarySheet['G5'] = "N/A"
+    # analysis on 1, 3 month
+    elif (numEntries-1 < 7):
+        summarySheet['C2'] = account.checking - archiveSheet.cell(row=numEntries-1, column=2).value
+        summarySheet['C3'] = account.saving - archiveSheet.cell(row=numEntries-1, column=3).value
+        summarySheet['C4'] = account.mm - archiveSheet.cell(row=numEntries-1, column=4).value
+        summarySheet['C5'] = round(account.sumAccount(), 2) - archiveSheet.cell(row=numEntries-1, column=5).value
+        summarySheet['D2'] = account.checking - archiveSheet.cell(row=numEntries-3, column=2).value
+        summarySheet['D3'] = account.saving - archiveSheet.cell(row=numEntries-3, column=3).value
+        summarySheet['D4'] = account.mm - archiveSheet.cell(row=numEntries-3, column=4).value
+        summarySheet['D5'] = round(account.sumAccount(), 2) - archiveSheet.cell(row=numEntries-3, column=5).value
+        summarySheet['E2'] = "N/A"
+        summarySheet['E3'] = "N/A"
+        summarySheet['E4'] = "N/A"
+        summarySheet['E5'] = "N/A"
+        summarySheet['F2'] = "N/A"
+        summarySheet['F3'] = "N/A"
+        summarySheet['F4'] = "N/A"
+        summarySheet['F5'] = "N/A"
+        summarySheet['G2'] = "N/A"
+        summarySheet['G3'] = "N/A"
+        summarySheet['G4'] = "N/A"
+        summarySheet['G5'] = "N/A"
+    # analysis on 1, 3, 6 month
+    elif (numEntries-1 < 10):
+        summarySheet['C2'] = account.checking - archiveSheet.cell(row=numEntries-1, column=2).value
+        summarySheet['C3'] = account.saving - archiveSheet.cell(row=numEntries-1, column=3).value
+        summarySheet['C4'] = account.mm - archiveSheet.cell(row=numEntries-1, column=4).value
+        summarySheet['C5'] = round(account.sumAccount(), 2) - archiveSheet.cell(row=numEntries-1, column=5).value
+        summarySheet['D2'] = account.checking - archiveSheet.cell(row=numEntries-3, column=2).value
+        summarySheet['D3'] = account.saving - archiveSheet.cell(row=numEntries-3, column=3).value
+        summarySheet['D4'] = account.mm - archiveSheet.cell(row=numEntries-3, column=4).value
+        summarySheet['D5'] = round(account.sumAccount(), 2) - archiveSheet.cell(row=numEntries-3, column=5).value
+        summarySheet['E2'] = account.checking - archiveSheet.cell(row=numEntries-6, column=2).value
+        summarySheet['E3'] = account.saving - archiveSheet.cell(row=numEntries-6, column=3).value
+        summarySheet['E4'] = account.mm - archiveSheet.cell(row=numEntries-6, column=4).value
+        summarySheet['E5'] = round(account.sumAccount(), 2) - archiveSheet.cell(row=numEntries-6, column=5).value
+        summarySheet['F2'] = "N/A"
+        summarySheet['F3'] = "N/A"
+        summarySheet['F4'] = "N/A"
+        summarySheet['F5'] = "N/A"
+        summarySheet['G2'] = "N/A"
+        summarySheet['G3'] = "N/A"
+        summarySheet['G4'] = "N/A"
+        summarySheet['G5'] = "N/A"
+    # analysis on 1, 3, 6, 9 month
+    elif (numEntries-1 < 13):
+        summarySheet['C2'] = account.checking - archiveSheet.cell(row=numEntries-1, column=2).value
+        summarySheet['C3'] = account.saving - archiveSheet.cell(row=numEntries-1, column=3).value
+        summarySheet['C4'] = account.mm - archiveSheet.cell(row=numEntries-1, column=4).value
+        summarySheet['C5'] = round(account.sumAccount(), 2) - archiveSheet.cell(row=numEntries-1, column=5).value
+        summarySheet['D2'] = account.checking - archiveSheet.cell(row=numEntries-3, column=2).value
+        summarySheet['D3'] = account.saving - archiveSheet.cell(row=numEntries-3, column=3).value
+        summarySheet['D4'] = account.mm - archiveSheet.cell(row=numEntries-3, column=4).value
+        summarySheet['D5'] = round(account.sumAccount(), 2) - archiveSheet.cell(row=numEntries-3, column=5).value
+        summarySheet['E2'] = account.checking - archiveSheet.cell(row=numEntries-6, column=2).value
+        summarySheet['E3'] = account.saving - archiveSheet.cell(row=numEntries-6, column=3).value
+        summarySheet['E4'] = account.mm - archiveSheet.cell(row=numEntries-6, column=4).value
+        summarySheet['E5'] = round(account.sumAccount(), 2) - archiveSheet.cell(row=numEntries-6, column=5).value
+        summarySheet['F2'] = account.checking - archiveSheet.cell(row=numEntries-9, column=2).value
+        summarySheet['F3'] = account.saving - archiveSheet.cell(row=numEntries-9, column=3).value
+        summarySheet['F4'] = account.mm - archiveSheet.cell(row=numEntries-9, column=4).value
+        summarySheet['F5'] = round(account.sumAccount(), 2) - archiveSheet.cell(row=numEntries-9, column=5).value
+        summarySheet['G2'] = "N/A"
+        summarySheet['G3'] = "N/A"
+        summarySheet['G4'] = "N/A"
+        summarySheet['G5'] = "N/A"
+    # analysis on 1, 3, 6, 9 month, 1 year
+    else:
+        print(archiveSheet.cell(row=numEntries-1, column=2).value)
+        print(numEntries-1)
+        summarySheet['C2'] = account.checking - archiveSheet.cell(row=numEntries-1, column=2).value
+        summarySheet['C3'] = account.saving - archiveSheet.cell(row=numEntries-1, column=3).value
+        summarySheet['C4'] = account.mm - archiveSheet.cell(row=numEntries-1, column=4).value
+        summarySheet['C5'] = round(account.sumAccount(), 2) - archiveSheet.cell(row=numEntries-1, column=5).value
+        summarySheet['D2'] = account.checking - archiveSheet.cell(row=numEntries-3, column=2).value
+        summarySheet['D3'] = account.saving - archiveSheet.cell(row=numEntries-3, column=3).value
+        summarySheet['D4'] = account.mm - archiveSheet.cell(row=numEntries-3, column=4).value
+        summarySheet['D5'] = round(account.sumAccount(), 2) - archiveSheet.cell(row=numEntries-3, column=5).value
+        summarySheet['E2'] = account.checking - archiveSheet.cell(row=numEntries-6, column=2).value
+        summarySheet['E3'] = account.saving - archiveSheet.cell(row=numEntries-6, column=3).value
+        summarySheet['E4'] = account.mm - archiveSheet.cell(row=numEntries-6, column=4).value
+        summarySheet['E5'] = round(account.sumAccount(), 2) - archiveSheet.cell(row=numEntries-6, column=5).value
+        summarySheet['F2'] = account.checking - archiveSheet.cell(row=numEntries-9, column=2).value
+        summarySheet['F3'] = account.saving - archiveSheet.cell(row=numEntries-9, column=3).value
+        summarySheet['F4'] = account.mm - archiveSheet.cell(row=numEntries-9, column=4).value
+        summarySheet['F5'] = round(account.sumAccount(), 2) - archiveSheet.cell(row=numEntries-12, column=5).value
+        summarySheet['G2'] = account.checking - archiveSheet.cell(row=numEntries-12, column=2).value
+        summarySheet['G3'] = account.saving - archiveSheet.cell(row=numEntries-12, column=3).value
+        summarySheet['G4'] = account.mm - archiveSheet.cell(row=numEntries-12, column=4).value
+        summarySheet['G5'] = round(account.sumAccount(), 2) - archiveSheet.cell(row=numEntries-12, column=5).value
+
+
+# fit the cells of the sheet parameter ws
+def fitCells(ws):
+    dims = {}
+    for row in ws.rows:
+        for cell in row:
+            if cell.value:
+                cell.alignment = Alignment(horizontal="center")
+                dims[cell.column_letter] = max((dims.get(cell.column_letter, 0), len(str(cell.value))))
+    for col, value in dims.items():
+        ws.column_dimensions[col].width = value
 
 
 # basically the start of "main()"
@@ -350,9 +238,14 @@ except:
     setUpSummary()
     setUpArchive()
 
+
+
 # call the various methods that handle writing to the excel files
 allocateBankAccountValues()
 allocateSummaryBankAccount()
+
+fitCells(summarySheet)
+fitCells(archiveSheet)
 
 # save the file
 writeWB.save(writeWB.title + '.xlsx')

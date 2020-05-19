@@ -6,27 +6,14 @@ The input is a well-formatted excel file that holds the amounts in my various
 accounts. The output is an excel file with a summary sheet and sheets for each
 individual tabulation.
 
-Progress:
-  Start with known excel files, input is input.xlsx, output is
-  FinanceSummary.xlsx
+Current Status:
+  Program takes an input file and a desired output file. It handles whether or not the output file
+  has been used yet or not.
+  The input file should have well-formatted inputs inside. Currently, it should say Bank Account in A1,
+  Then, going down, it should say Checking, Savings, Money Market with the respective totals in the
+  adjacent columns (B2, B3, B4)
+  The output file will have a summary sheet along with an archive of all the bank account tracking
+  The summary sheet will have the current total along with various deltas over certain periods of time
 
-  Analysis done for 1 month difference, 6 month difference, 1 year difference.
-
-  Analysis now done for 1, 3, 6, 9 months, and 1 year.
-  Archive sheet holds data from more than 1 year ago so that sheets bar doesn't get
-  overloaded.
-  As of now, done with bank total portion, except for sheet name.
-  NEW INFO, I want to change the current implementation of Bank Account to only have an
-  archive file rather than a bunch of sheets, it's cleaner, and allows for more scalability
-  to the other things I eventually want to include. COMPLETED
-  Onto loans to individuals info.
-  After that, possibly include student loans info.
-
-Goal:
-  Input and output files can be declared as parameters of the
-  program. (DONE)
-  Add analysis for 3 month difference, 9 month difference.
-  Create archive file that holds data from more than 1 year ago so that excel file doesn't
-  get overloaded.
-  More analysis will be done eventually.
-  Possibly add more for loans to individuals, other aspects of finances such as student loans.
+Future Status:
+  Program will also handle individual investments/loans, student debt, etc. All in a similar fashion
