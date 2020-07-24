@@ -133,7 +133,8 @@ def allocateBankAccountValues():
     summarySheet['B3'] = account.saving
     summarySheet['B4'] = account.mm
     summarySheet['B5'] = account.sumAccount()
-    insertRow = archiveSheet.max_row + 1 # get the next row, the row we need to insert at
+    insertRow = 2
+    archiveSheet.insert_rows(insertRow)
     archiveSheet.cell(row=insertRow, column=1).number_format = 'm/d/yyyy'
     archiveSheet.cell(row=insertRow, column=1).value = date.today().strftime("%m/%d/%Y")
     archiveSheet.cell(row=insertRow, column=2).number_format = '"$"#,##0.00_);[Red]("$"#,##0.00)'
@@ -155,7 +156,8 @@ def allocateInvestmentValues():
     summarySheet['D11'] = investment.rate
     summarySheet['D12'] = investment.period
     summarySheet['D13'] = round((investment.calculateProfit()), 2)
-    insertRow = investArchive.max_row + 1 # get the next row, the row we need to insert at
+    insertRow = 2
+    investArchive.insert_rows(insertRow)
     investArchive.cell(row=insertRow, column=1).number_format = 'm/d/yyyy'
     investArchive.cell(row=insertRow, column=1).value = investment.startDate
     investArchive.cell(row=insertRow, column=2).number_format = 'm/d/yyyy'
@@ -306,7 +308,7 @@ def allocateSummaryBankAccount():
         summarySheet['F2'] = account.checking - archiveSheet.cell(row=numEntries-9, column=2).value
         summarySheet['F3'] = account.saving - archiveSheet.cell(row=numEntries-9, column=3).value
         summarySheet['F4'] = account.mm - archiveSheet.cell(row=numEntries-9, column=4).value
-        summarySheet['F5'] = round(account.sumAccount(), 2) - archiveSheet.cell(row=numEntries-12, column=5).value
+        summarySheet['F5'] = round(account.sumAccount(), 2) - archiveSheet.cell(row=numEntries-9, column=5).value
         summarySheet['G2'] = account.checking - archiveSheet.cell(row=numEntries-12, column=2).value
         summarySheet['G3'] = account.saving - archiveSheet.cell(row=numEntries-12, column=3).value
         summarySheet['G4'] = account.mm - archiveSheet.cell(row=numEntries-12, column=4).value

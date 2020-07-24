@@ -14,7 +14,7 @@ class Investment:
         return (((self.principal*self.rate)/365)*self.period)
 
     def printInformation(self):
-        print("My loan information:")
+        print("My investment information:")
         print("Principal: $%.2f" % self.principal)
         print("Rate: %.2f%%" % (self.rate*100))
         print("Length of Investment (days): %.0f" % self.period)
