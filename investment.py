@@ -63,13 +63,7 @@ def setUpInvestArchive(investArchive):
 # enters invesment values into archive and the current investment values into the Current
 # location on the summary sheet
 # formats to desired format for each inserted cell
-def allocateInvestmentValues(summarySheet, investArchive, investment):
-    summarySheet['D8'] = investment.startDate
-    summarySheet['D9'] = investment.endDate
-    summarySheet['D10'] = investment.principal
-    summarySheet['D11'] = investment.rate
-    summarySheet['D12'] = investment.period
-    summarySheet['D13'] = round((investment.calculateProfit()), 2)
+def allocateInvestmentValues(investArchive, investment):
     insertRow = 2
     investArchive.insert_rows(insertRow)
     investArchive.cell(row=insertRow, column=1).number_format = 'm/d/yyyy'
@@ -90,3 +84,9 @@ def allocateSummaryInvestment(summarySheet, investment):
     summarySheet['B9'] = round( (summarySheet['B9'].value + (investment.calculateProfit())), 2)
     summarySheet['B10'] = round( (summarySheet['B10'].value + 1), 2)
     summarySheet['B11'] = round( (summarySheet['B11'].value + investment.period), 2)
+    summarySheet['D8'] = investment.startDate
+    summarySheet['D9'] = investment.endDate
+    summarySheet['D10'] = investment.principal
+    summarySheet['D11'] = investment.rate
+    summarySheet['D12'] = investment.period
+    summarySheet['D13'] = round((investment.calculateProfit()), 2)

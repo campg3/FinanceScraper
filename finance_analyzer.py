@@ -1,6 +1,7 @@
 # Reading an excel file using Python
 import bank_account
 import investment
+import student_loan
 import xlrd
 import openpyxl as op
 from openpyxl.styles import Alignment
@@ -11,8 +12,9 @@ import sys
 # formats to desired format for each inserted cell
 # defaults initial values to N/A or 0, depending on which section, bankAccount or Invest
 def setUpSummary(summarySheet):
-    bankSummarySetUp(summarySheet)
-    investmentSetUp(summarySheet)
+    bank_account.bankSummarySetUp(summarySheet)
+    investment.investmentSetUp(summarySheet)
+    student_loan.studentLoanSetUp(summarySheet)
 
 
 # set up the archive sheet
@@ -55,6 +57,7 @@ sheet = wb.sheet_by_index(0)
 
 bankPresent = False
 investmentPresent = False
+studentDebtPresent = False
 
 # Loop through columns
 for i in range(sheet.nrows):
@@ -66,6 +69,10 @@ for i in range(sheet.nrows):
         investmentPresent = True
         _investment = investment.Investment(sheet.cell_value(i+1, 1), sheet.cell_value(i+2, 1), sheet.cell_value(i+3, 1),
                                             sheet.cell_value(i+4, 1), sheet.cell_value(i+5, 1), sheet.cell_value(i+6, 1))
+    elif (sheet.cell_value(i,0) == "Student Debt"):
+        studentDebtPresent = True
+        federalStudentDebt = student_loan.StudentLoan(sheet.cell_value(i+1, 1), sheet.cell_value(i+2, 1))
+        privateStudentDebt = student_loan.StudentLoan(sheet.cell_value(i+1, 2), sheet.cell_value(i+2, 2))
 
 
 # open the excel workbook, if doesn't exist, create it and ensure 'Summary' is first sheet
@@ -75,17 +82,20 @@ try:
     summarySheet = writeWB["Summary"]
     archiveSheet = writeWB["Bank Archive"]
     investArchive = writeWB["Investment Archive"]
+    studentDebtArchive = writeWB["Student Debt Archive"]
 except:
     writeWB = op.Workbook()
     writeWB.title = sys.argv[2][0:-5] # set the title without the .xlsx
     summarySheet = writeWB.create_sheet("Summary")
     archiveSheet = writeWB.create_sheet("Bank Archive")
     investArchive = writeWB.create_sheet("Investment Archive")
+    studentDebtArchive = writeWB.create_sheet("Student Debt Archive")
     if (writeWB.sheetnames[0] != "Summary"): # if not summary, delete first
         writeWB.remove(writeWB[writeWB.sheetnames[0]])
     setUpSummary(summarySheet)
     setUpArchive(archiveSheet)
-    setUpInvestArchive(investArchive)
+    investment.setUpInvestArchive(investArchive)
+    student_loan.setUpStudentDebtArchive(studentDebtArchive)
 
 
 
@@ -97,14 +107,24 @@ if (bankPresent == True):
     account.printAccount()
     print()
 if (investmentPresent == True):
-    investment.allocateInvestmentValues(summarySheet, investArchive, _investment)
+    investment.allocateInvestmentValues(investArchive, _investment)
     investment.allocateSummaryInvestment(summarySheet, _investment)
     _investment.printInformation()
+    print()
+if (studentDebtPresent == True):
+    student_loan.allocateSummaryStudentDebt(summarySheet, federalStudentDebt, privateStudentDebt)
+    student_loan.allocateArchiveStudentDebt(studentDebtArchive, federalStudentDebt, privateStudentDebt)
+    federalStudentDebt.printDebtFederal()
+    print()
+    privateStudentDebt.printDebtPrivate()
+    print()
+    print("Total student debt amount: $%.2f" % (federalStudentDebt.total+privateStudentDebt.total))
     print()
 
 fitCells(summarySheet)
 fitCells(archiveSheet)
 fitCells(investArchive)
+fitCells(studentDebtArchive)
 
 # save the file
 writeWB.save(writeWB.title + '.xlsx')
